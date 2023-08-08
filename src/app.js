@@ -1,20 +1,21 @@
 const express = require('express');
 const path = require('path');
-/*const cookieParser = require('cookie-parser');
-const flash = require('express-flash');*/
+const cookieParser = require('cookie-parser');
+const flash = require('express-flash');
 const session = require('express-session');
 const dotenv = require('dotenv')
 const morgan = require('morgan'); // registra las solicitudes junto con alguna otra información
 const {port} = require('./keys')
-const app = express();
 
-app.use(session({ 
+const app = express();
+ 
+ app.use(session({ 
     secret: '123458cat',
     resave: false,
     saveUninitialized: true,
     cookie: { maxAge: 60000 }
 }))
-
+ 
 //seteamos el motor de plantillas
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
@@ -23,7 +24,7 @@ app.set('trust proxy', 1) // Proxy de confianzaf
 
 /** Middlewares */
 app.use(morgan('dev'));
-
+app.use(flash());
 
 //para procesar datos enviados desde forms
 app.use(express.urlencoded({ extended: true }));
@@ -36,14 +37,7 @@ app.use(express.static(path.join(__dirname, './public')));
 dotenv.config({ path: './env/.env' });
 
 //para poder trabajar con las cookies
-
-/** VARIABLES GLOBALES */
-global.urlLicencias = ['front', 'back'];
-global.urlLicenciasClientes = ['front', 'back', 'acuerdo'];
-global.urlEvidenciaServicioInstalado = ['front'];
-
-global.urlProfile = ''
-global.urlEvidencia = ''
+ app.use(cookieParser());
 
 global.btn_mydomain = 'http://localhost:' + port
 
@@ -56,17 +50,11 @@ app.use((req, res, next) => {
 //llamar al router
 app.use('/', require('./routes/router'));
 
-
-// RUTAS PARA ERROR 404
-app.get('*', (req, res, next) => {
-  res.render('404');
-});
-
 // Configuraciones
 app.set('port' , port);
 
 app.listen(app.get('port'), () => {
-  console.log("*********************")
+  console.log("***********************************************************")
   console.log('===> 🚀 SERVIDOR CORRIENDO en http://localhost:' + app.get('port')) 
 });
 
